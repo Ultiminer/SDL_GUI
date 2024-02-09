@@ -1,10 +1,18 @@
+#define TEST_MODE
+
+
 #include <iostream>
+#include "config.h"
+#include "sdl_gui_wrapper.h"
 
 
 
-int main(int argc, char** argv)
+
+int WinMain()
 {
+    RMV_OBJ();
 
 
+    
     return 0; 
 }
