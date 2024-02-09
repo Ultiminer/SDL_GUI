@@ -2,17 +2,18 @@
 
 
 #include <iostream>
-#include "config.h"
 #include "sdl_gui_wrapper.h"
 
 
 
 
-int WinMain()
+int main()
 {
     RMV_OBJ();
+    SG_Start(true);
+    SG_UseColor(255,255,255,255);
 
+    SG_End();
 
-    
     return 0; 
 }
