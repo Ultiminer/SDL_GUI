@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "sdl_gui_wrapper.h"
-
+#include "sdl_gui_image.h"
 
 
 

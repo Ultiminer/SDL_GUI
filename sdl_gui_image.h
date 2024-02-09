@@ -43,11 +43,18 @@ class Image
     int height=0; 
     int x=0;
     int y=0; 
+    double angle=0; 
+    SDL_Point center={0,0};
+    SDL_RendererFlip flipMode=SDL_FLIP_NONE; 
+
     Image(const Image_Data& imgData):data(imgData)
     {}
     Image(const Image_Data& imgData, int X, int Y, int Width, int Height):data(imgData),x(X),y(Y),width(Width),height(Height)
     {}
-   
+    Image(const Image_Data& imgData, int X, int Y, int Width, int Height, double Angle, const SDL_Point& centerOfRotation):data(imgData),x(X),y(Y),width(Width),height(Height),angle(Angle),center(centerOfRotation)
+    {}
+
+
     Image& SetWidth(int Width)
     {
         width=Width; 
@@ -68,6 +75,30 @@ class Image
         y=Y; 
         return *this; 
     }
+    Image& SetAngle(double Angle)
+    {
+        angle=Angle;
+        return *this; 
+    }
+    Image& Rotate(double deltaAngle)
+    {
+        angle+=deltaAngle;
+
+        return *this; 
+    }
+    Image& SetFlipmode(const SDL_RendererFlip& Flipmode)
+    {
+        flipMode=Flipmode; 
+
+        return *this; 
+    }
+    Image& SetCenter(const SDL_Point& Center)
+    {
+        center=Center; 
+
+        return *this; 
+    }
+
     int GetX()const
     {
         return x; 
@@ -84,6 +115,24 @@ class Image
     {
         return height; 
     }
+    double GetAngle()const
+    {
+        return angle; 
+    }
+    SDL_Point GetCenter()const
+    {
+        return center; 
+    }
+
+    void Draw()
+    {
+        const SDL_Rect srcRect{0,0,data.width,data.height};
+        const SDL_Rect destRect{x,y,width,height};
+
+        SDL_RenderCopyEx(__SG::renderer.obj,data.text,&srcRect,&destRect,angle,&center,flipMode);
+    }
+
+
 };
 
 
