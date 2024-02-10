@@ -13,6 +13,7 @@ void inline __SDL_GUI_Close()noexcept
 {
     SDL_Quit();
 }
+
 namespace __SG{
 inline struct Window{
 SDL_Window* obj; 
@@ -31,7 +32,6 @@ Window()
 
 inline struct Renderer{
 SDL_Renderer* obj; 
-
 
 Renderer()
 {
@@ -56,6 +56,56 @@ Event()
     delete obj;
 }
 }event=Event(); 
+inline struct Mouse{
+    int x=0; 
+    int y=0; 
+    bool left=false; 
+    bool right=false;
+    Mouse(){}
+    Mouse& update()
+    {
+        SDL_GetMouseState(&x, &y);
+        if(event.obj->type==SDL_MOUSEBUTTONDOWN)
+        {   
+            switch(event.obj->button.button)
+            {
+                case SDL_BUTTON_LEFT: left=true; break; 
+                case SDL_BUTTON_RIGHT: right=true;break; 
+            }
+        }
+        else if(event.obj->type==SDL_MOUSEBUTTONUP)
+        {
+            switch(event.obj->button.button)
+            {
+                case SDL_BUTTON_LEFT: left=false; break; 
+                case SDL_BUTTON_RIGHT: right=false;break; 
+            }
+        }
+
+        return *this;
+    }
+    int GetX()const
+    {
+        return x; 
+    }
+    int GetY()const
+    {
+        return y; 
+    }
+    SDL_Point GetP()const 
+    {
+        return {x,y};
+    }
+    bool IsLeft()const
+    {
+        return left;
+    }
+    bool IsRight()const
+    {
+        return right;
+    }
+
+}mouse=Mouse();
 
 
 
@@ -64,7 +114,7 @@ Event()
 
 
 #define SG_Start(condition) __SDL_GUI_INIT(); while(__SG::event.obj->type!=SDL_QUIT&&((condition)==true)){SDL_RenderClear(__SG::renderer.obj);
-#define SG_End() SDL_RenderPresent(__SG::renderer.obj);SDL_PollEvent(__SG::event.obj);} __SDL_GUI_Close();
+#define SG_End() SDL_RenderPresent(__SG::renderer.obj);SDL_PollEvent(__SG::event.obj);__SG::mouse.update();} __SDL_GUI_Close();
 #define SG_UseColor(r,g,b,a) SDL_SetRenderDrawColor(__SG::renderer.obj,(r),(g),(b),(a));
 
 

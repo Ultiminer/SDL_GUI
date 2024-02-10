@@ -49,7 +49,7 @@ inline Image_Data* GetImage(const char* name)
 
 struct Image
 {
-    Image_Data* data; 
+    Image_Data* data=nullptr; 
     int x=0;
     int y=0; 
     int width=0; 
@@ -58,6 +58,7 @@ struct Image
     SDL_Point center={0,0};
     SDL_RendererFlip flipMode=SDL_FLIP_NONE; 
 
+    Image(){}
     Image(Image_Data* imgData):data(imgData)
     {}
     Image(Image_Data* imgData, int X, int Y, int Width, int Height):data(imgData),x(X),y(Y),width(Width),height(Height)
@@ -147,11 +148,6 @@ struct Image
 
 
 };
-
-
-
-
-
 
 
 
