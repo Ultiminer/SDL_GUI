@@ -26,32 +26,43 @@ struct Image_Data
         SDL_DestroyTexture(text);
     }
 };
-inline std::unordered_map<const char*, Image_Data>__img_atlas;
-inline void AddImage(const char* name, const char* path,const SDL_Color& transpColor)
+inline struct ImageAtlas
 {
-    __img_atlas.insert({name,Image_Data(path,transpColor)});
-}
-inline Image_Data GetImage(const char* name)
+std::unordered_map<const char*, Image_Data*> data; 
+~ImageAtlas()
 {
-    return __img_atlas.at(name);
+    for(auto& el: data)delete el.second;
+    data.clear();
 }
 
-class Image
+}__img_atlas;
+
+
+inline void AddImage(const char* name, const char* path,const SDL_Color& transpColor)
 {
-    Image_Data data; 
-    int width=0; 
-    int height=0; 
+    __img_atlas.data.insert({name,new Image_Data(path,transpColor)});
+}
+inline Image_Data* GetImage(const char* name)
+{
+    return __img_atlas.data.at(name);
+}
+
+struct Image
+{
+    Image_Data* data; 
     int x=0;
     int y=0; 
+    int width=0; 
+    int height=0; 
     double angle=0; 
     SDL_Point center={0,0};
     SDL_RendererFlip flipMode=SDL_FLIP_NONE; 
 
-    Image(const Image_Data& imgData):data(imgData)
+    Image(Image_Data* imgData):data(imgData)
     {}
-    Image(const Image_Data& imgData, int X, int Y, int Width, int Height):data(imgData),x(X),y(Y),width(Width),height(Height)
+    Image(Image_Data* imgData, int X, int Y, int Width, int Height):data(imgData),x(X),y(Y),width(Width),height(Height)
     {}
-    Image(const Image_Data& imgData, int X, int Y, int Width, int Height, double Angle, const SDL_Point& centerOfRotation):data(imgData),x(X),y(Y),width(Width),height(Height),angle(Angle),center(centerOfRotation)
+    Image(Image_Data* imgData, int X, int Y, int Width, int Height, double Angle, const SDL_Point& centerOfRotation):data(imgData),x(X),y(Y),width(Width),height(Height),angle(Angle),center(centerOfRotation)
     {}
 
 
@@ -124,16 +135,25 @@ class Image
         return center; 
     }
 
-    void Draw()
+    Image& Draw()
     {
-        const SDL_Rect srcRect{0,0,data.width,data.height};
+        const SDL_Rect srcRect{0,0,data->width,data->height};
         const SDL_Rect destRect{x,y,width,height};
 
-        SDL_RenderCopyEx(__SG::renderer.obj,data.text,&srcRect,&destRect,angle,&center,flipMode);
+        SDL_RenderCopyEx(__SG::renderer.obj,data->text,&srcRect,&destRect,angle,&center,flipMode);
+
+        return *this;
     }
 
 
 };
+
+
+
+
+
+
+
 
 
 
