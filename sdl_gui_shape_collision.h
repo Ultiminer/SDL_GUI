@@ -12,8 +12,14 @@ constexpr bool Collide(const SDL_Rect& A, const SDL_Rect& B )noexcept
 {
     return (A.x+A.w>B.x)&&(A.y+A.h>B.y)&&(B.x+B.w>A.x)&&(B.y+B.h>A.y);
 }
-
-
+constexpr bool Collide(const SDL_Point& A, const SDL_Point& B )noexcept
+{
+    return (A.x==B.x)&&(A.y==B.y);
+}
+constexpr bool Collide(const SDL_Circle& A, const SDL_Circle& B)noexcept
+{
+    return ((A.x-B.x)*(A.x-B.x)+(A.y-B.y)*(A.y-B.y)<(A.r+B.r)*(A.r+B.r)); 
+}
 
 
 

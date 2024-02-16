@@ -14,6 +14,19 @@ void inline __SDL_GUI_Close()noexcept
     SDL_Quit();
 }
 
+//Add new SDL primitive 
+struct SDL_Circle 
+{
+    int x; int y; int r; 
+};
+struct SDL_FCircle
+{
+    float x; float y; float r; 
+}; 
+
+
+
+
 namespace __SG{
 inline struct Window{
 SDL_Window* obj; 
