@@ -36,14 +36,7 @@ std::unordered_map<const char*, Image_Data*> data;
 }
 
 }__img_atlas;
-struct Tileset_Data
-{
-    float frameWidth;
-    float frameHeight;
-    float spacingX; 
-    float spacingY; 
-    size_t numObjects; 
-};
+
 
 
 
@@ -56,6 +49,10 @@ inline Image_Data* GetImage(const char* name)
     return __img_atlas.data.at(name);
 }
 
+struct AnimationData{
+    size_t iA; size_t jA; size_t iB; size_t jB; float frameW; float frameH; size_t numCols; size_t numRows; size_t FPS; 
+    size_t ticks=0; float x; float y; 
+};
 struct Image
 {
     Image_Data* data=nullptr; 
@@ -66,6 +63,7 @@ struct Image
     double angle=0; 
     SDL_Point center={0,0};
     SDL_RendererFlip flipMode=SDL_FLIP_NONE; 
+    AnimationData animData={0};
 
     Image(){}
     Image(Image_Data* imgData):data(imgData)
@@ -154,102 +152,55 @@ struct Image
 
         return *this;
     }
+    Image& Draw(size_t x, size_t y, size_t numCols, size_t numRows)
+    {
+        const float tWidth{data->width/numCols};
+        const float tHeight{data->height/numRows};
+        const SDL_Rect srcRect{x*tWidth,y*tHeight,tWidth,tHeight};
+        const SDL_Rect destRect{x,y,width,height};
 
+        SDL_RenderCopyEx(__SG::renderer.obj,data->text,&srcRect,&destRect,angle,&center,flipMode);
 
-};
-struct Tileset
-{
-    Tileset_Data* tilesetData=nullptr; 
-    Image_Data* data=nullptr; 
-    int x=0;
-    int y=0; 
-    int width=0; 
-    int height=0; 
-    double angle=0; 
-    SDL_Point center={0,0};
-    SDL_RendererFlip flipMode=SDL_FLIP_NONE; 
+        return *this;
+    }
+    Image& SetupAnimation(size_t iA, size_t jA,size_t iB, size_t jB ,size_t numCols, size_t numRows, size_t FPS)
+    {
+        animData={iA,jA,iB,jB,(float)data->width/numCols,(float)data->height/ numRows,numCols,numRows,FPS};
+        animData.x=iA*animData.frameW;
+        animData.y=jA*animData.frameH;
 
-    Tileset(){}
-    Tileset(Image_Data* imgData,Tileset_Data* TilesetData):data(imgData),tilesetData(TilesetData)
-    {}
-    Tileset(Image_Data* imgData,Tileset_Data* TilesetData, int X, int Y, int Width, int Height):data(imgData),tilesetData(TilesetData),x(X),y(Y),width(Width),height(Height)
-    {}
-    Tileset(Image_Data* imgData,Tileset_Data* TilesetData, int X, int Y, int Width, int Height, double Angle, const SDL_Point& centerOfRotation):data(imgData),tilesetData(TilesetData),x(X),y(Y),width(Width),height(Height),angle(Angle),center(centerOfRotation)
-    {}
+        return *this;
+    }
+    Image& Animate()
+    {  
+        if(animData.ticks+1000/animData.FPS>SDL_GetTicks())return *this;
 
+        if(animData.x+animData.frameW>animData.iB*animData.frameW && animData.y+animData.frameH>animData.jB*animData.frameH )
+        {
+            animData.x=animData.iA*animData.frameW;
+            animData.y=animData.jA*animData.frameH;
+            return *this;
+        }
 
-    Tileset& SetWidth(int Width)
-    {
-        width=Width; 
-        return *this; 
-    }
-    Tileset& SetHeight(int Height)
-    {
-        height=Height; 
-        return *this; 
-    }
-    Tileset& SetX(int X)
-    {
-        x=X; 
-        return *this; 
-    }
-    Tileset& SetY(int Y)
-    {
-        y=Y; 
-        return *this; 
-    }
-    Tileset& SetAngle(double Angle)
-    {
-        angle=Angle;
-        return *this; 
-    }
-    Tileset& Rotate(double deltaAngle)
-    {
-        angle+=deltaAngle;
+        if(animData.x<data->width-animData.frameW)
+        animData.x+=animData.frameW;
+        else 
+        animData.y+=animData.frameH;
 
-        return *this; 
+        animData.ticks=SDL_GetTicks();
+        return *this;
     }
-    Tileset& SetFlipmode(const SDL_RendererFlip& Flipmode)
+    
+    Image& SetAnimationFrame(size_t i, size_t j)
     {
-        flipMode=Flipmode; 
+        animData.x=i*animData.frameW;
+        animData.y=j*animData.frameH;
 
-        return *this; 
+        return *this;
     }
-    Tileset& SetCenter(const SDL_Point& Center)
+    Image& AnimationDraw()
     {
-        center=Center; 
-
-        return *this; 
-    }
-
-    int GetX()const
-    {
-        return x; 
-    }
-    int GetY()const
-    {
-        return y; 
-    }
-    int GetWidth()const
-    {
-        return width; 
-    }
-    int GetHeight()const
-    {
-        return height; 
-    }
-    double GetAngle()const
-    {
-        return angle; 
-    }
-    SDL_Point GetCenter()const
-    {
-        return center; 
-    }
-
-    Tileset& Draw(size_t obj, size_t el)
-    {
-        const SDL_Rect srcRect{0,0,data->width,data->height};
+        const SDL_Rect srcRect{animData.x,animData.y,animData.frameW,animData.frameH};
         const SDL_Rect destRect{x,y,width,height};
 
         SDL_RenderCopyEx(__SG::renderer.obj,data->text,&srcRect,&destRect,angle,&center,flipMode);
@@ -258,7 +209,9 @@ struct Tileset
     }
 
 
+
 };
+
 
 
 
